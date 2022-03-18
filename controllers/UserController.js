@@ -1,3 +1,4 @@
+var User = require("../models/User");
 class UserController {
     async index(req, res) { }
 
@@ -21,8 +22,9 @@ class UserController {
             return;
         }
 
+        await User.create(name, email, password);
         res.status(200);
-        res.send("Pegando o corpo da requisição");
+        res.send("Usuário inserido com sucesso!");
     }
 }
 
