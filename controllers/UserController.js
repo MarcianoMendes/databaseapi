@@ -3,22 +3,28 @@ class UserController {
     async index(req, res) { }
 
     async create(req, res) {
-        var{name,email,password} = req.body;
-        if(name == undefined) {
+        var { name, email, password } = req.body;
+        if (name == undefined) {
             res.status(400);
-            res.json({message:"Informe o nome"})
+            res.json({ message: "Informe o nome" })
             return;
         }
 
-        if(email == undefined) {
+        if (email == undefined) {
             res.status(400);
-            res.json({message:"O email é inválido"})
+            res.json({ message: "O email é inválido" })
+            return;
+        }
+        
+        if (await User.findEmail(email)) {
+            res.status(406);
+            res.json({ message: "O email já existe na base de dados" })
             return;
         }
 
-        if(password == undefined) {
+        if (password == undefined) {
             res.status(400);
-            res.json({message:"Informe o password"})
+            res.json({ message: "Informe o password" })
             return;
         }
 
