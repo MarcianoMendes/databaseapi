@@ -1,4 +1,4 @@
-
+var Token = require("./Token");
 var knex = require("../database/connection");
 var bcrypt = require("bcrypt");
 class User {
@@ -15,6 +15,21 @@ class User {
     async findById(id) {
         try {
             var result = await knex.select("id", "name", "email", "role").where({ id: id }).table("users");
+            if (result.length > 0) {
+                return result[0];
+            }
+
+            return undefined;
+
+        } catch (err) {
+            console.log(err);
+            return undefined;
+        }
+    }
+
+    async findByEmail(email) {
+        try {
+            var result = await knex.select("id", "name", "email","password", "role").where({ email: email }).table("users");
             if (result.length > 0) {
                 return result[0];
             }
@@ -79,6 +94,29 @@ class User {
         }
 
         return { status: false, message: "Usuário não existe!" }
+    }
+
+    async delete(id) {
+        if (await this.findById(id) != undefined) {
+            try {
+                await knex.delete(id).where({ id: id }).table("users");
+                return { status: true, message: "Usuário excluído com sucesso!" }
+            } catch (err) {
+                return { status: false, message: err };
+            }
+        }
+
+        return { status: false, message: "Usuário não existe, não pode ser excluído!" }
+    }
+
+    async changePassword(id, newPassword,token) {        
+        try {
+            var hash = await bcrypt.hash(newPassword, 10);
+            await knex.update({ password: hash }).where({ id: id }).table("users");
+            await Token.setUsed(token);
+        } catch (err) {
+            console.log(err)
+        }
     }
 }
 
